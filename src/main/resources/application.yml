@@ -1,0 +1,20 @@
+server:
+  port : 8080
+
+spring:
+  datasource:
+    url: jdbc:postgresql://${DB_HOST:localhost}:5432/users_db
+    username: test
+    password: test
+    driver-class-name: org.postgresql.Driver
+  flyway:
+    schemas:
+      - public
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui-users-api:html
+    operationsSorter: method
+
+validation:
+  minAge: 18
