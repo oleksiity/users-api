@@ -87,5 +87,5 @@ jobs:
             Application: *Users-api*   
             Branch: *${{ github.ref }}*
             Repository: *${{ github.repository }}*
-            Commit url: *${{ event.url }}*
-            Details: *${{ github.repository }}: [${{ github.ref }}@${{ github.sha }}](${{ github.server_url }}/${{ github.repository }}/actions)*
+            Commit url: ${{ github.event.url }}
+            Details: ${{ github.repository }}: [${{ github.ref }}@${{ github.sha }}](${{ github.server_url }}/${{ github.repository }}/actions)
