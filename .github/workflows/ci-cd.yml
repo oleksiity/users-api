@@ -84,7 +84,10 @@ jobs:
           format: markdown
           message: |
             *Users-api github Deploy to AWS DEV job FAILED*
-            Application: *Users-api*       
+            
+            Application: *Users-api*   
+            
             Branch: *${{ github.ref }}*
             Repository: *${{ github.repository }}*
-            Owner: *${{ github.repository_owner }}*
+            Commit url: ${{ event.url }}
+            Details: ${{ github.repository }}: [${{ github.ref }}@${{ github.sha }}](${{ github.server_url }}/${{ github.repository }}/actions)
