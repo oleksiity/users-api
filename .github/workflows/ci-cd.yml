@@ -72,5 +72,19 @@ jobs:
           service: users-api-service
           cluster: UsersApiDevCluster1
           wait-for-service-stability: true
-          
 
+      - name: Send Telegram Message on Failure
+        if: failure()
+        uses: appleboy/telegram-action@master
+        env:
+          GITHUB_CONTEXT: ${{ toJSON(github) }}
+        with:
+          to: ${{ secrets.TELEGRAM_ID }}
+          token: ${{ secrets.TELEGRAM_TOKEN }}
+          format: markdown
+          message: |
+            Users-api github Deploy to AWS DEV job FAILED
+            Application: Users-api          
+            Branch: *${{ github.ref }}*
+            Repository: *${{ github.repository }}*
+            Owner: *${{ github.repository_owner }}*

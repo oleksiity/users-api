@@ -182,4 +182,15 @@ class UserServiceImplTest {
 
         verify(userRepository, times(1)).delete(eq(UserDataHelper.getArsenWenger()));
     }
+
+    @Test
+    @DisplayName("Fail test for verify github actions")
+    public void failedTest() {
+        when(userRepository.findById(eq(2L)))
+                .thenReturn(Optional.of(UserDataHelper.getArsenWenger()));
+
+        userService.deleteUserById(2L);
+
+        verify(userRepository, times(1)).save(eq(UserDataHelper.getArsenWenger()));
+    }
 }
