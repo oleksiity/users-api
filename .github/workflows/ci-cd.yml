@@ -83,8 +83,8 @@ jobs:
           token: ${{ secrets.TELEGRAM_TOKEN }}
           format: markdown
           message: |
-            Users-api github Deploy to AWS DEV job FAILED
-            Application: Users-api          
+            *Users-api github Deploy to AWS DEV job FAILED*
+            Application: *Users-api*       
             Branch: *${{ github.ref }}*
             Repository: *${{ github.repository }}*
             Owner: *${{ github.repository_owner }}*
