@@ -19,7 +19,7 @@ jobs:
           java-version: '21'
 
       - name: Build Project
-        run: mvn clean install -Paws
+        run: mvn clean install
 
       - name: Build & push Docker image to dockerhub
         uses: mr-smithers-excellent/docker-build-push@v5
