@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  users-db:
+    container_name: users-db
+    image: postgres
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_PASSWORD=test
+      - POSTGRES_USER=test
+      - POSTGRES_DB=users_db
+    volumes:
+      - ~/apps/postgres:/var/lib/postgresql/data
+  users-api:
+    restart: always
+    container_name: users-api
+    build: .
+    ports:
+      - "8080:8080"
+    depends_on:
+      - users-db
+    environment:
+      - SPRING_DATASOURCE_URL=${DB_URL:-jdbc:postgresql://users-db:5432/users_db}
+volumes:
+  postgres-data:
