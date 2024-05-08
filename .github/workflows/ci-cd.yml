@@ -21,57 +21,60 @@ jobs:
       - name: Build Project
         run: mvn clean install
 
+      - name: Set VERSION environment variable
+        run: |
+          echo "VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV
+
       - name: Build & push Docker image to dockerhub
         uses: mr-smithers-excellent/docker-build-push@v5
         with:
-          image: leshatim98/users-api
-          tags: latest
+          image: ${{ secrets.DOCKER_USERNAME }}/users-api
+          tags: ${{ env.VERSION }}, latest
           registry: docker.io
           dockerfile: Dockerfile
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v3
-        with:
-          aws-access-key-id:  ${{ secrets.AWS_ACCESS_KEY }}
-          aws-secret-access-key:  ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: 'eu-central-1'
-
-      - name: Login to AWS ECR
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v1
-        with:
-          mask-password: 'true'
-
-      - name: Build, tag and push image to Amozon ECR
-        id: build-image
-        env:
-          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          ECR_REPOSITORY: ${{ secrets.ECR_REPO_NAME }}
-          IMAGE_TAG: ${{ github.sha }}
-        run: |
-          # Build a docker image and 
-          # push it to ECR to future deploy to  ECS.
-          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-          echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
-
-      - name: Fill in the new image ID in the Amazon ECS task definition
-        id: task-def
-        uses: aws-actions/amazon-ecs-render-task-definition@v1
-        with:
-          task-definition: users-api-task-def.json
-          container-name: users-api
-          image: ${{ steps.build-image.outputs.image }}
-
-      - name: Deploy Amazon ECS task definition
-        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
-        with:
-          task-definition: ${{ steps.task-def.outputs.task-definition }}
-          service: users-api-service
-          cluster: UsersApiDevCluster1
-          wait-for-service-stability: true
+#      - name: Configure AWS Credentials
+#        uses: aws-actions/configure-aws-credentials@v3
+#        with:
+#          aws-access-key-id:  ${{ secrets.AWS_ACCESS_KEY }}
+#          aws-secret-access-key:  ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+#          aws-region: 'eu-central-1'
+#
+#      - name: Login to AWS ECR
+#        id: login-ecr
+#        uses: aws-actions/amazon-ecr-login@v1
+#        with:
+#          mask-password: 'true'
+#
+#      - name: Build, tag and push image to Amozon ECR
+#        id: build-image
+#        env:
+#          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+#          ECR_REPOSITORY: ${{ secrets.ECR_REPO_NAME }}
+#        run: |
+#          # Build a docker image and
+#          # push it to ECR to future deploy to  ECS.
+#          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:latest .
+#          docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
+#          echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:latest >> $GITHUB_OUTPUT
+#
+#      - name: Fill in the new image ID in the Amazon ECS task definition
+#        id: task-def
+#        uses: aws-actions/amazon-ecs-render-task-definition@v1
+#        with:
+#          task-definition: users-api-task-def.json
+#          container-name: users-api
+#          image: ${{ steps.build-image.outputs.image }}
+#
+#      - name: Deploy Amazon ECS task definition
+#        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+#        with:
+#          task-definition: ${{ steps.task-def.outputs.task-definition }}
+#          service: users-api-service
+#          cluster: UsersApiDevCluster1
+#          wait-for-service-stability: true
 
       - name: Send Telegram Message on Failure
         if: failure()
