@@ -35,30 +35,31 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-#      - name: Configure AWS Credentials
-#        uses: aws-actions/configure-aws-credentials@v3
-#        with:
-#          aws-access-key-id:  ${{ secrets.AWS_ACCESS_KEY }}
-#          aws-secret-access-key:  ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-#          aws-region: 'eu-central-1'
-#
-#      - name: Login to AWS ECR
-#        id: login-ecr
-#        uses: aws-actions/amazon-ecr-login@v1
-#        with:
-#          mask-password: 'true'
-#
-#      - name: Build, tag and push image to Amozon ECR
-#        id: build-image
-#        env:
-#          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-#          ECR_REPOSITORY: ${{ secrets.ECR_REPO_NAME }}
-#        run: |
-#          # Build a docker image and
-#          # push it to ECR to future deploy to  ECS.
-#          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:latest .
-#          docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
-#          echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:latest >> $GITHUB_OUTPUT
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v3
+        with:
+          aws-access-key-id:  ${{ secrets.AWS_ACCESS_KEY }}
+          aws-secret-access-key:  ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: 'eu-central-1'
+
+      - name: Login to AWS ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+        with:
+          mask-password: 'true'
+
+      - name: Build, tag and push image to Amozon ECR
+        id: build-image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: ${{ secrets.ECR_REPO_NAME }}
+        run: |
+          # Build a docker image and
+          # push it to ECR to future deploy to  ECS.
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:${{ env.VERSION }} -t $ECR_REGISTRY/$ECR_REPOSITORY:latest .
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:${{ env.VERSION }}
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
+          echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:${{ env.VERSION }}" >> $GITHUB_OUTPUT
 #
 #      - name: Fill in the new image ID in the Amazon ECS task definition
 #        id: task-def
